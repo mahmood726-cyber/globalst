@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>globalst | Cardiovascular Disease ST-NMA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --background: #f8fafc;
+            --text: #1e293b;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        h1 { font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+        .subtitle { color: #64748b; font-size: 1.1rem; margin-bottom: 32px; }
+        .chart-container { margin: 40px 0; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 0.9rem; color: #94a3b8; }
+        .truthcert { font-family: monospace; background: #f1f5f9; padding: 12px; border-radius: 6px; font-size: 0.8rem; overflow-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>globalst</h1>
+        <p class="subtitle">Spatio-Temporal Network Meta-Analysis of Cardiovascular Disease</p>
+        
+        <p>This dashboard presents regional comparative effectiveness estimates for CVD interventions, synthesized from gold-standard clinical trials and IHME burden data.</p>
+
+        <div class="chart-container">
+            <canvas id="nmaChart"></canvas>
+        </div>
+
+        <div class="truthcert">
+            <strong>TRUTHCERT Integrity Hash:</strong><br>
+            81d089390a79ad8299b96512c408fa8a5e9abfd2f8da5bcec313c16409111c22
+        </div>
+
+        <div class="footer">
+            &copy; 2026 E156 Meta-Analysis Pipeline. Data sources: ClinicalTrials.gov, IHME, World Bank, WHO.
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('nmaChart').getContext('2d');
+        const chartData = {
+            labels: ['North America', 'Europe', 'Asia', 'Africa'],
+            datasets: [{
+                label: 'Comparative Effectiveness (OR)',
+                data: [1.0281, 0.9824, 1.0498, 1.0367],
+                backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                borderColor: 'rgba(37, 99, 235, 1)',
+                borderWidth: 2,
+                pointRadius: 5,
+                pointBackgroundColor: 'rgba(37, 99, 235, 1)'
+            }]
+        };
+
+        new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: { display: true, text: 'Odds Ratio (OR)' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Regional Effectiveness Variations' }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
