@@ -1,0 +1,41 @@
+{
+    "model": "ST-NMA-MCMC-v2.0",
+    "results": [
+        {
+            "region": "Africa",
+            "estimate": 1.0367,
+            "ci_low": 0.2038,
+            "ci_high": 2.8627,
+            "evidence_hash": "f71127181bf1e7089375ff481683de20c8582782bdcc4c18e3c88c82824effef"
+        },
+        {
+            "region": "Asia",
+            "estimate": 1.0498,
+            "ci_low": 0.2248,
+            "ci_high": 3.2436,
+            "evidence_hash": "c6b2610fdc03b4a461de6de5b7523a958dbf96d005c2b117e8b0945cf1a5b252"
+        },
+        {
+            "region": "Europe",
+            "estimate": 0.9824,
+            "ci_low": 0.1729,
+            "ci_high": 3.1208,
+            "evidence_hash": "8313d0d97f37a178d1c9a6d87abb43694d27e37eae479fd6a3f3a793e3f7656e"
+        },
+        {
+            "region": "North America",
+            "estimate": 1.0281,
+            "ci_low": 0.2352,
+            "ci_high": 3.0936,
+            "evidence_hash": "8551e40e221d69d49139d11b7ff703b9b18a12935c890d1781c4b62ec67d2e0b"
+        }
+    ],
+    "diagnostics": {
+        "r_hat_max": null,
+        "n_eff_min": null
+    },
+    "truthcert": {
+        "input_hash": "81d089390a79ad8299b96512c408fa8a5e9abfd2f8da5bcec313c16409111c22",
+        "timestamp": "2026-04-08"
+    }
+}

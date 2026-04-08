@@ -1,0 +1,6 @@
+[
+    {"location": "North America", "measure": "DALYs", "val": 15000000, "year": 2020},
+    {"location": "Europe", "measure": "DALYs", "val": 20000000, "year": 2020},
+    {"location": "Asia", "measure": "DALYs", "val": 150000000, "year": 2020},
+    {"location": "Africa", "measure": "DALYs", "val": 40000000, "year": 2020}
+]

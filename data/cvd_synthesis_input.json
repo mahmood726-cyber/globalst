@@ -1,0 +1,70 @@
+{
+    "rcts": [
+        {
+            "trial_id": "NCT001",
+            "intervention": "Statin",
+            "control": "Placebo",
+            "outcome": "CV mortality",
+            "effect_size": 0.85,
+            "n": 10000,
+            "region": "North America",
+            "year": 2020
+        },
+        {
+            "trial_id": "NCT002",
+            "intervention": "ACE Inhibitor",
+            "control": "Placebo",
+            "outcome": "Stroke",
+            "effect_size": 0.9,
+            "n": 5000,
+            "region": "Europe",
+            "year": 2018
+        },
+        {
+            "trial_id": "NCT003",
+            "intervention": "Statin",
+            "control": "ACE Inhibitor",
+            "outcome": "CV mortality",
+            "effect_size": 0.95,
+            "n": 2000,
+            "region": "Asia",
+            "year": 2022
+        }
+    ],
+    "burden": [
+        {
+            "location": "North America",
+            "measure": "DALYs",
+            "val": 15000000,
+            "year": 2020
+        },
+        {
+            "location": "Europe",
+            "measure": "DALYs",
+            "val": 20000000,
+            "year": 2020
+        },
+        {
+            "location": "Asia",
+            "measure": "DALYs",
+            "val": 150000000,
+            "year": 2020
+        },
+        {
+            "location": "Africa",
+            "measure": "DALYs",
+            "val": 40000000,
+            "year": 2020
+        }
+    ],
+    "covariates": [
+        {
+            "country": "USA",
+            "gdp_per_capita": 70000
+        },
+        {
+            "country": "IND",
+            "gdp_per_capita": 2300
+        }
+    ]
+}

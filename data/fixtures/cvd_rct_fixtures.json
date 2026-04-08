@@ -1,0 +1,5 @@
+[
+    {"trial_id": "NCT001", "intervention": "Statin", "control": "Placebo", "outcome": "CV mortality", "effect_size": 0.85, "n": 10000, "region": "North America", "year": 2020},
+    {"trial_id": "NCT002", "intervention": "ACE Inhibitor", "control": "Placebo", "outcome": "Stroke", "effect_size": 0.9, "n": 5000, "region": "Europe", "year": 2018},
+    {"trial_id": "NCT003", "intervention": "Statin", "control": "ACE Inhibitor", "outcome": "CV mortality", "effect_size": 0.95, "n": 2000, "region": "Asia", "year": 2022}
+]
