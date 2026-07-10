@@ -1,7 +1,10 @@
 import json
 import os
+from pathlib import Path
 import requests
 import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
 
 def fetch_ct_gov_data(condition="Cardiovascular Diseases"):
     """
@@ -9,7 +12,7 @@ def fetch_ct_gov_data(condition="Cardiovascular Diseases"):
     """
     # In a real scenario, use the ClinicalTrials.gov API.
     # For now, we use a fixture if available, else return a mock.
-    fixture_path = "globalst/data/fixtures/cvd_rct_fixtures.json"
+    fixture_path = ROOT / "data" / "fixtures" / "cvd_rct_fixtures.json"
     if os.path.exists(fixture_path):
         with open(fixture_path, 'r') as f:
             return json.load(f)
@@ -19,7 +22,7 @@ def fetch_ihme_burden(measure="DALYs", cause="Cardiovascular diseases"):
     """
     Extract CVD burden (e.g., DALYs) from IHME GBD dataset.
     """
-    fixture_path = "globalst/data/fixtures/ihme_cvd_burden.json"
+    fixture_path = ROOT / "data" / "fixtures" / "ihme_cvd_burden.json"
     if os.path.exists(fixture_path):
         with open(fixture_path, 'r') as f:
             return json.load(f)
@@ -44,9 +47,11 @@ def main():
         "covariates": covariates
     }
     
-    with open("globalst/data/cvd_synthesis_input.json", 'w') as f:
+    output_path = ROOT / "data" / "cvd_synthesis_input.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(data, f, indent=4)
-    print("Data ingestion complete. Saved to globalst/data/cvd_synthesis_input.json")
+    print(f"Data ingestion complete. Saved to {output_path}")
 
 if __name__ == "__main__":
     main()

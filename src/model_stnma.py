@@ -1,10 +1,32 @@
 import json
 import os
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import pymc as pm
 import arviz as az
 import hashlib
+
+ROOT = Path(__file__).resolve().parents[1]
+
+def extract_diagnostics(raw_summary):
+    """
+    Extract convergence diagnostics from an arviz summary that has been
+    rendered via pandas DataFrame.to_dict() (default orient='dict', which
+    yields {column_name: {param_name: value}}).
+
+    Returns (r_hat_max, n_eff_min). Either value is None if the corresponding
+    column is absent from the summary.
+
+    Note: the summary must be indexed by COLUMN ('r_hat', 'ess_bulk') first;
+    iterating raw_summary.values() gives per-column {param: value} dicts, whose
+    KEYS are parameter names, never 'r_hat'/'ess_bulk'.
+    """
+    r_hat_col = raw_summary.get('r_hat')
+    ess_col = raw_summary.get('ess_bulk')
+    r_hat_max = float(max(r_hat_col.values())) if r_hat_col else None
+    n_eff_min = float(min(ess_col.values())) if ess_col else None
+    return r_hat_max, n_eff_min
 
 def generate_truthcert_hash(data):
     """
@@ -66,8 +88,12 @@ def run_st_nma_mcmc(input_data):
         print("Starting MCMC sampling...")
         trace = pm.sample(200, tune=100, cores=1, chains=1, random_seed=42, progressbar=False)
     
-    # Summary
-    summary = az.summary(trace, hdi_prob=0.95)
+    # Summary. arviz >=1.0 renamed the credible-interval kwarg hdi_prob -> ci_prob;
+    # fall back so the pipeline runs on both the old and pinned (1.1.0) arviz.
+    try:
+        summary = az.summary(trace, hdi_prob=0.95)
+    except TypeError:
+        summary = az.summary(trace, ci_prob=0.95)
     
     # Regional Estimates (Base + Regional Effect)
     # For a specific intervention (e.g., Statin vs Placebo)
@@ -90,32 +116,35 @@ def run_st_nma_mcmc(input_data):
     return results, summary.to_dict(), generate_truthcert_hash(input_data)
 
 def main():
-    input_path = "globalst/data/cvd_synthesis_input.json"
-    if not os.path.exists(input_path):
+    input_path = ROOT / "data" / "cvd_synthesis_input.json"
+    if not input_path.exists():
         print(f"Input file not found: {input_path}")
         return
-        
+
     with open(input_path, 'r') as f:
         input_data = json.load(f)
-    
+
     results, raw_summary, input_hash = run_st_nma_mcmc(input_data)
-    
+
+    r_hat_max, n_eff_min = extract_diagnostics(raw_summary)
     output = {
         "model": "ST-NMA-MCMC-v2.0",
         "results": results,
         "diagnostics": {
-            "r_hat_max": float(max([v['r_hat'] for v in raw_summary.values() if 'r_hat' in v])) if any('r_hat' in v for v in raw_summary.values()) else None,
-            "n_eff_min": float(min([v['ess_bulk'] for v in raw_summary.values() if 'ess_bulk' in v])) if any('ess_bulk' in v for v in raw_summary.values()) else None
+            "r_hat_max": r_hat_max,
+            "n_eff_min": n_eff_min
         },
         "truthcert": {
             "input_hash": input_hash,
             "timestamp": "2026-04-08"
         }
     }
-    
-    with open("globalst/output/st_nma_results.json", 'w') as f:
+
+    output_path = ROOT / "output" / "st_nma_results.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(output, f, indent=4)
-    print("MCMC Model execution complete. Results saved to globalst/output/st_nma_results.json")
+    print(f"MCMC Model execution complete. Results saved to {output_path}")
 
 if __name__ == "__main__":
     main()

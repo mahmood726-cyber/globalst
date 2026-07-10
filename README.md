@@ -14,6 +14,24 @@ This repository implements a **Spatio-Temporal Network Meta-Analysis (ST-NMA)** 
 - `tests/`: Automated test suite for data validation and model stability.
 - `docs/`: Documentation and the E156 micro-paper draft.
 
+## Setup
+Install the pinned dependencies from the repo root:
+
+```
+pip install -r requirements.txt
+```
+
+`pymc` compiles its model graph through PyTensor and requires a C++ compiler
+(`g++` / `gxx`) on `PATH` to run MCMC sampling (with conda:
+`conda install -c conda-forge gxx`). The test suite and the diagnostics helpers
+run without a compiler; only `run_st_nma_mcmc()` sampling needs one.
+
+Run the tests from the repo root:
+
+```
+python -m pytest -q
+```
+
 ## Pipeline
 The project follows the E156 research pipeline rules. See `GEMINI.md` for detailed session instructions and session workflow.
 

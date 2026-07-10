@@ -1,0 +1,12 @@
+# globalst — Spatio-Temporal Network Meta-Analysis dependencies
+# Pinned to the versions verified locally (2026-07-10).
+#
+# NOTE: pymc compiles the model graph via PyTensor and needs a C++ compiler
+# (g++ / gxx) on PATH to sample. With conda: `conda install -c conda-forge gxx`.
+# The extraction/diagnostics helpers and the test suite run without a compiler;
+# only run_st_nma_mcmc() sampling requires one.
+pymc==6.0.1
+arviz==1.1.0
+numpy==2.4.6
+pandas==2.3.3
+requests==2.34.2
