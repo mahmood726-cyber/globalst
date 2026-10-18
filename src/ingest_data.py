@@ -1,57 +1,76 @@
+"""Assemble explicitly supplied local snapshots; no live acquisition or fallback data."""
+import argparse
 import json
+import math
 import os
 from pathlib import Path
-import requests
-import pandas as pd
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
-def fetch_ct_gov_data(condition="Cardiovascular Diseases"):
-    """
-    Fetch RCT data from ClinicalTrials.gov (mock/example for now).
-    """
-    # In a real scenario, use the ClinicalTrials.gov API.
-    # For now, we use a fixture if available, else return a mock.
-    fixture_path = ROOT / "data" / "fixtures" / "cvd_rct_fixtures.json"
-    if os.path.exists(fixture_path):
-        with open(fixture_path, 'r') as f:
-            return json.load(f)
-    return [{"trial_id": "NCT001", "intervention": "A", "control": "B", "outcome": "mortality", "effect_size": 0.85, "n": 5000}]
 
-def fetch_ihme_burden(measure="DALYs", cause="Cardiovascular diseases"):
-    """
-    Extract CVD burden (e.g., DALYs) from IHME GBD dataset.
-    """
-    fixture_path = ROOT / "data" / "fixtures" / "ihme_cvd_burden.json"
-    if os.path.exists(fixture_path):
-        with open(fixture_path, 'r') as f:
-            return json.load(f)
-    return [{"location": "Global", "measure": measure, "val": 450000000}]
+def _reject_nonfinite(value):
+    raise ValueError(f"Nonfinite number in snapshot: {value}")
 
-def fetch_world_bank_covariates(indicator="NY.GDP.PCAP.CD"):
-    """
-    Pull relevant covariates (e.g., GDP per capita) from the World Bank API.
-    """
-    # World Bank API is generally Open Access: https://api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD?format=json
-    return [{"country": "USA", "gdp_per_capita": 70000}, {"country": "IND", "gdp_per_capita": 2300}]
+
+def _check_finite(value):
+    if isinstance(value, float) and not math.isfinite(value):
+        _reject_nonfinite(value)
+    if isinstance(value, dict):
+        for item in value.values():
+            _check_finite(item)
+    elif isinstance(value, list):
+        for item in value:
+            _check_finite(item)
+
+
+def _load_snapshot(source_path):
+    if source_path is None:
+        raise ValueError("An explicit local snapshot is required; live fetching is not implemented")
+    with Path(source_path).open(encoding="utf-8") as source:
+        records = json.load(source, parse_constant=_reject_nonfinite)
+    if not isinstance(records, list) or not records or any(not isinstance(r, dict) for r in records):
+        raise ValueError("A snapshot must contain a nonempty JSON list of record objects")
+    _check_finite(records)
+    return records
+
+
+def fetch_ct_gov_data(*, source_path=None):
+    """Load a caller-supplied registry snapshot; this function does not query CT.gov."""
+    return _load_snapshot(source_path)
+
+
+def fetch_ihme_burden(*, source_path=None):
+    """Load a caller-supplied burden snapshot; this function does not query IHME."""
+    return _load_snapshot(source_path)
+
+
+def fetch_world_bank_covariates(*, source_path=None):
+    """Load caller-supplied covariates; this function does not query the World Bank."""
+    return _load_snapshot(source_path)
+
 
 def main():
-    print("Fetching CVD data from Open Access sources...")
-    rcts = fetch_ct_gov_data()
-    burden = fetch_ihme_burden()
-    covariates = fetch_world_bank_covariates()
-    
+    parser = argparse.ArgumentParser(description=__doc__)
+    for name in ("rcts", "burden", "covariates", "output"):
+        parser.add_argument(f"--{name}", type=Path, required=True)
+    args = parser.parse_args()
     data = {
-        "rcts": rcts,
-        "burden": burden,
-        "covariates": covariates
+        "rcts": fetch_ct_gov_data(source_path=args.rcts),
+        "burden": fetch_ihme_burden(source_path=args.burden),
+        "covariates": fetch_world_bank_covariates(source_path=args.covariates),
     }
-    
-    output_path = ROOT / "data" / "cvd_synthesis_input.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(data, f, indent=4)
-    print(f"Data ingestion complete. Saved to {output_path}")
+    encoded = json.dumps(data, indent=4, allow_nan=False)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(dir=args.output.parent, suffix=".tmp", delete=False) as staged:
+        staged_path = Path(staged.name)
+    try:
+        staged_path.write_text(encoded, encoding="utf-8")
+        os.replace(staged_path, args.output)
+    finally:
+        staged_path.unlink(missing_ok=True)
+    print(f"Loaded local snapshots into {args.output}; no live sources were queried.")
+
 
 if __name__ == "__main__":
     main()
