@@ -33,6 +33,21 @@ python -m pytest -q
 ```
 
 ## Pipeline
+Ingestion loads explicitly supplied local JSON snapshots. It does not call the
+ClinicalTrials.gov, IHME or World Bank APIs, invent fallback records, or silently
+select the bundled illustrative fixtures. Each input must be a nonempty list of
+record objects with finite numbers; source identity and research validity still
+require independent checks before analysis.
+
+```bash
+python src/ingest_data.py --rcts registry.json --burden burden.json --covariates covariates.json --output data/cvd_synthesis_input.json
+```
+
+The historical `fetch_*` Python helpers now require `source_path=...` instead of
+accepting unused search parameters. Missing/invalid inputs leave the existing
+output intact. Existing bundled fixtures and saved results are illustrative;
+this ingestion repair does not validate their scientific content.
+
 The project follows the E156 research pipeline rules. See `GEMINI.md` for detailed session instructions and session workflow.
 
 ## License
